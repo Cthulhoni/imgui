@@ -15,16 +15,22 @@
 #CXX = clang++
 
 EXE = example_sdl2_opengl3
+DLL = shared.so
 IMGUI_DIR = ../..
 SOURCES = main.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+DLL_SOURCES = shared.cpp
+DLL_SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
+DLL_SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
+DLL_OBJS = $(addsuffix .o, $(basename $(notdir $(DLL_SOURCES))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
 
-CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
-CXXFLAGS += -g -Wall -Wformat
+CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I.
+CXXFLAGS += -g -Wall -Wformat -fPIC
 LIBS =
 
 ##---------------------------------------------------------------------
@@ -81,11 +87,15 @@ endif
 %.o:$(IMGUI_DIR)/backends/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-all: $(EXE)
+all: $(EXE) $(DLL)
 	@echo Build complete for $(ECHO_MESSAGE)
 
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
+$(DLL): $(DLL_OBJS)
+	$(CXX) -o $@ $^ -shared $(CXXFLAGS) $(LIBS)
+
 clean:
 	rm -f $(EXE) $(OBJS)
+	rm -f $(DLL) $(DLL_OBJS)
