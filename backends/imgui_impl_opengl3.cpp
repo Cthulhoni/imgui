@@ -277,6 +277,11 @@ struct ImGui_ImplOpenGL3_VtxAttribState
 #endif
 
 // Functions
+void    ImGui_ImplOpenGL3_dllInit()
+{
+  imgl3wInit();
+}
+
 bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
 {
     ImGuiIO& io = ImGui::GetIO();
